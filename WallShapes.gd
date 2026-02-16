@@ -821,6 +821,8 @@ func update_wall_to_preview_points(wall: Node2D, shape_type: String):
 			var points = preview_line["WallTool"].points
 			# Remove the start point as we don't need it (unlike to draw the line)
 			points.remove(points.size()-1)
+
+			if polygon_area(points) < 0.001: return
 			
 			# if this is an arc, set the loop as false and trim the first point
 			match shape_type:
@@ -848,6 +850,8 @@ func update_path_to_preview_points(path: Node2D, shape_type: String):
 	if preview_path["PathTool"] == null: return
 
 	var points = store_path_preview_points
+
+	if polygon_area(points) < 0.001: return
 
 	# Set the new points of the wall and setting loop as true
 	path.Loop = true
@@ -916,6 +920,21 @@ func hide_preview(tool_type: String):
 	initial_mouse_position = null
 	store_shape_type = ""
 	store_path_preview_points = []
+
+func polygon_area(points: Array) -> float:
+	var area := 0.0
+	var count := points.size()
+	
+	if count < 3:
+		return 0.0
+	
+	for i in range(count):
+		var p1: Vector2 = points[i]
+		var p2: Vector2 = points[(i + 1) % count]
+		area += (p1.x * p2.y) - (p2.x * p1.y)
+	
+	return abs(area) * 0.5
+
 
 #########################################################################################################
 ##
